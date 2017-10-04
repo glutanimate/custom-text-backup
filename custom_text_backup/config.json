@@ -1,0 +1,24 @@
+{
+    "searchTerm": "deck:current",
+    "noteTypeExceptions": {
+        "Basic": ["Back", "Front"],
+        "Cloze": ["Text"]
+    },
+    "dateFormat": "%Y-%M-%D",
+    "exportFieldNames": false,
+    "exportScheduling": false,
+    "exportTags": false,
+    "exportDeckName": false,
+    "exportNotetypeName": false,
+    "fieldSeparator": "<--FLDSEP-->",
+    "fieldStarter": "<--FLDSTART-->",
+    "fieldCloser": "<--FLDEND-->",
+    "singleLinePerField": false,
+    "singleLineFieldTitle": "<<<<field: {fieldname}>>>>",
+    "singleFilePerNote": false,
+    "singleFileNameFormat": "{nid}_{notetype}",
+    "noteSeparator": "=====",
+    "exportPath": "~/AnkiBackup",
+    "execBeforeExport": "",
+    "execAfterExport": ""
+} 
