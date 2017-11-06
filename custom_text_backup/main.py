@@ -9,15 +9,24 @@ Copyright: (c) 2017 Glutanimate <https://glutanimate.com/>
 License: GNU AGPLv3 <https://www.gnu.org/licenses/agpl.html>
 """
 
+# TODO: Features that need completion
+# - forecast, history
+# - make various fields optional
+# - note type exceptions
+# - date format
+# - run commands
+# - test on windows / anki2.1, etc.
+# - default config handling
+
 from __future__ import unicode_literals
 
-import sys, os
+import sys
+import os
 import copy
 import io
 
 from aqt import mw
 from anki.utils import json
-from anki.hooks import addHook
 from aqt.utils import tooltip
 
 from anki import version as anki_version
@@ -68,6 +77,7 @@ fieldnames: {fieldnames_string}
 fields: {fields_string}\
 """
 
+
 def getConfig():
     if anki21:
         config = mw.addonManager.getConfig(__name__)
@@ -81,10 +91,9 @@ def getConfig():
             config = None
     return config if config else {}
 
+
 def runCmd(command):
     pass
-
-
 
 
 def performBackup():
@@ -92,18 +101,16 @@ def performBackup():
     config = copy.deepcopy(default_config)
     config.update(getConfig())
 
-
     pre_command = config["execBeforeExport"]
     if pre_command:
         runCmd(pre_command)
-    
+
     export_path = os.path.expanduser(config["exportPath"])
     query = config["searchTerm"]
-    
 
     if not os.path.isdir(export_path):
         os.makedirs(export_path)
-    
+
     individual_files = config["singleFilePerNote"]
     if not individual_files:
         out_file = os.path.join(
@@ -116,12 +123,10 @@ def performBackup():
 
     individual_field_lines = config["singleLinePerField"]
 
-
     fldsep_format = config["fieldSeparator"]
     flds_start = config["fieldStarter"]
     flds_close = config["fieldCloser"]
     nids = mw.col.findNotes(query)
-    
 
     end = len(nids) - 1
     for idx, nid in enumerate(nids):
@@ -158,7 +163,7 @@ def performBackup():
 
         if individual_field_lines:
             title_format = config["singleLineFieldTitle"]
-        
+
             annotated_fields = [flds_start]
             for fname, field in zip(fieldnames, fields):
                 title = title_format.format(fieldname=fname, **format_fields)
@@ -178,7 +183,7 @@ def performBackup():
             "deck": deck, "created": created,
             "forecast": forecast,
             "tags_string": tags_string,
-            "history_string": history_string, 
+            "history_string": history_string,
             "fieldnames_string": fieldnames_string,
             "fields_string": fields_string
         }
@@ -194,12 +199,9 @@ def performBackup():
                 note_separator = note_separator_format.format(**format_fields)
                 f.write("\n" + note_separator + "\n")
 
-
     post_command = config.get("execBeforeExport", None)
     if post_command:
         runCmd(pre_command)
-
-
 
 
 # Set up menus and hooks

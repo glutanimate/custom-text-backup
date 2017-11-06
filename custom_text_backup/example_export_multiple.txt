@@ -1,0 +1,28 @@
+nid: 14401110111
+deck: Basics
+tags: general<--FLDSEP-->info
+created: 2017-09-21
+history: 2017-09-21<--FLDSEP-->2017-09-21<--FLDSEP-->2017-09-23<--FLDSEP-->2017-10-01
+forecast: 2017-10-12
+fieldnames: Front<--FLDSEP-->Back<--FLDSEP-->Extra1<--FLDSEP-->Extra2<--FLDSEP-->Note ID
+fields: <--FLDSTART-->What is the capital of
+<b>Austria</b>?<--FLDSEP--><i>Vienna</i><--FLDSEP-->"Vienna" comes from latin
+<span style="color:green">Vindobona</span><--FLDSEP--><--FLDSEP-->14401110114<--FLDEND-->
+========================================================
+nid: 14401110111
+deck: Basics
+tags: general<--FLDSEP-->info
+created: 2017-09-21
+history: 2017-09-21<--FLDSEP-->2017-09-21<--FLDSEP-->2017-09-23<--FLDSEP-->2017-10-01
+forecast: 2017-10-12
+fieldnames: <--FLDSTART-->Front<--FLDSEP-->Back<--FLDSEP-->Extra1<--FLDSEP-->Extra2<--FLDSEP-->Note ID
+fields: What is the capital of <b>Austria</b>?<--FLDSEP--><i>Vienna</i><--FLDSEP-->"Vienna" comes from latin <span style="color:green">Vindobona</span><--FLDSEP--><--FLDSEP-->14401110114<--FLDEND-->
+========================================================
+nid: 14401110111
+deck: Basics
+tags: general<--FLDSEP-->info
+created: 2017-09-21
+history: 2017-09-21<--FLDSEP-->2017-09-21<--FLDSEP-->2017-09-23<--FLDSEP-->2017-10-01
+forecast: 2017-10-12
+fieldnames: <--FLDSTART-->Front<--FLDSEP-->Back<--FLDSEP-->Extra1<--FLDSEP-->Extra2<--FLDSEP-->Note ID
+fields: What is the capital of <b>Austria</b>?<--FLDSEP--><i>Vienna</i><--FLDSEP-->"Vienna" comes from latin <span style="color:green">Vindobona</span><--FLDSEP--><--FLDSEP-->14401110114<--FLDEND-->
