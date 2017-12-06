@@ -18,3 +18,4 @@ docs/description.html
 tools/test.py
 custom_text_backup/forms*
 custom-text-backup-*.zip
+docs/config_specs.md
