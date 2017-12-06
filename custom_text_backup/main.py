@@ -11,7 +11,6 @@ License: GNU AGPLv3 <https://www.gnu.org/licenses/agpl.html>
 
 # TODO: Features that need completion
 # - forecast, history
-# - date format
 # - run commands
 # - test on windows / anki2.1, etc.
 
@@ -21,6 +20,7 @@ import sys
 import os
 import copy
 import io
+from datetime import datetime
 
 from aqt import mw
 from anki.utils import json
@@ -48,7 +48,7 @@ default_config = {
     },
     "optionalEntriesOrder": [
         "noteTypeName", "deckName", "tags", "scheduling", "fieldNames"],
-    "dateFormat": "%Y-%M-%D",
+    "dateFormat": "%Y-%M-%d",
     "fieldSeparator": "<--FLDSEP-->",
     "fieldStarter": "<--FLDSTART-->",
     "fieldCloser": "<--FLDEND-->",
@@ -173,6 +173,8 @@ class BackupWorker(object):
 
     def getNoteData(self, nid):
         """Get data dictionary for note id"""
+        date_fmt = self.config["dateFormat"]
+
         note = mw.col.getNote(nid)
         first_card = note.cards()[0]
         did = first_card.did
@@ -187,10 +189,10 @@ class BackupWorker(object):
             fields = [note[i] for i in fieldnames if i in note]
             
         note_data = {
-            "nid": note.id,
+            "nid": nid,
             "did": did,
             "deck": mw.col.decks.name(did),
-            "created": note.id,
+            "created": datetime.fromtimestamp(nid / 1000.0).strftime(date_fmt),
             "fieldnames": fieldnames,
             "fields": fields,
             "notetype": model["name"],

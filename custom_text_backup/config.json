@@ -27,7 +27,7 @@
     },
     "exportPath": "~/AnkiBackup",
     "execAfterExport": "",
-    "dateFormat": "%Y-%M-%D",
+    "dateFormat": "%Y-%M-%d %k:%M:%S",
     "fieldCloser": "<--FLDEND-->",
     "noteSeparator": "====================",
     "fieldSeparator": "<--FLDSEP-->",
