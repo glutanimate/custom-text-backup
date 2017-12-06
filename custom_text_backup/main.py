@@ -3,7 +3,7 @@
 """
 This file is part of the Custom Text Backup add-on for Anki
 
-Main Module, hooks add-on methods into Anki
+Main Module
 
 Copyright: (c) 2017 Glutanimate <https://glutanimate.com/>
 License: GNU AGPLv3 <https://www.gnu.org/licenses/agpl.html>
@@ -80,25 +80,30 @@ snippet_extensions_dict = {
 
 
 def slugify(value):
-    """Sanitize file name"""
-    keepcharacters = (' ', '.', '_')
-    return "".join(c for c in value if c.isalnum() or c in keepcharacters).rstrip()
+    """Return sanitized file name"""
+    preserve = (' ', '.', '_')
+    return "".join(c for c in value if c.isalnum() or c in preserve).rstrip()
 
 
 class BackupWorker(object):
+    """Exports Anki notes to custom-formatted text files
+    
+    Initiliaze and call with:
+    ```python
+    worker = BackupWorker()
+    worker.performBackup()
+    ```
+    """
 
     # note_data entries safe for use in filenames, etc.
     note_data_formatkeys = ("nid", "notetype", "deck", "created")
 
     def __init__(self):
-        # start with default config and work from there:
-        self.config = copy.deepcopy(default_config)
-        self.snippet_formatstr = snippet_body
         self.readConfig()
-        self.constructSnippetFormatstr()
+        self.constructSnippetFormatStr()
 
     def performBackup(self):
-
+        """Main backup method"""
         pre_command = self.config["execBeforeExport"]
         post_command = self.config["execBeforeExport"]
 
@@ -111,7 +116,7 @@ class BackupWorker(object):
 
         ret = self.writeBackup(backup_data)
 
-        if not ret:
+        if ret is False:
             return False
 
         if post_command:
@@ -120,7 +125,10 @@ class BackupWorker(object):
         tooltip("Backup performed succesfully")
 
     def readConfig(self):
-        if anki21:
+        """Parse user-supplied config file or fall back to defaults"""
+        # start with default config and work from there:
+        config = copy.deepcopy(default_config)
+        if anki21:  # use Anki 2.1's inbuilt config management when available
             user_config = mw.addonManager.getConfig(__name__)
         else:
             addon_path = os.path.dirname(__file__).decode(sys_encoding)
@@ -131,39 +139,43 @@ class BackupWorker(object):
                 user_config = {}
         if not user_config:
             self.writeConfig(default_config)
-        self.config.update(user_config)
+        config.update(user_config)
+        self.config = config
 
     def writeConfig(self, config):
-        if anki21:
+        """Save config file in add-on diretory"""
+        if anki21:  # use Anki 2.1's inbuilt config management when available
             mw.addonManager.writeConfig(__name__, config)
             return
         addon_path = os.path.dirname(__file__).decode(sys_encoding)
         config_path = os.path.join(addon_path, "config.json")
         with io.open(config_path, 'w', encoding="utf-8") as outfile:
             outfile.write(unicode(json.dumps(config, indent=4,
-                                             sort_keys=True, ensure_ascii=False)))
+                                             sort_keys=True,
+                                             ensure_ascii=False)))
 
-    def constructSnippetFormatstr(self):
+    def constructSnippetFormatStr(self):
+        """Assemble format string for note backup snippets"""
         snippet_extensions_list = [""]
         for key in self.config["optionalEntriesOrder"]:
             if not self.config["optionalEntries"][key]:
                 continue
             snippet_extensions_list.append(snippet_extensions_dict[key])
-        self.snippet_formatstr = self.snippet_formatstr.format(
+        self.snippet_formatstr = snippet_body.format(
             snippet_extensions="\n".join(snippet_extensions_list))
 
     def getBackupDirectory(self):
+        """Check if backup folder exists. Create it if necessary"""
         export_path = os.path.expanduser(self.config["exportPath"])
-
         try:
             if not os.path.isdir(export_path):
                 os.makedirs(export_path)
         except (IOError, OSError):
             export_path = None
-
         return export_path
 
     def getNoteData(self, nid):
+        """Get data dictionary for note id"""
         note = mw.col.getNote(nid)
         first_card = note.cards()[0]
         did = first_card.did
@@ -244,9 +256,11 @@ class BackupWorker(object):
         return backup_data
 
     def findNids(self, query):
+        """Query Anki's collection for a search string, return matching nids"""
         return mw.col.findNotes(query)
 
     def writeBackup(self, backup_data):
+        """Write backup to disk"""
         export_path = self.getBackupDirectory()
 
         if not export_path:
@@ -259,7 +273,7 @@ class BackupWorker(object):
         filename_formatstr = self.config["individualFilePerNoteNameFormat"]
         filename_default = self.config["exportFileName"]
 
-        if not individual_files:
+        if not individual_files:  # pack note snippets into a single file
             out_file = os.path.join(export_path, slugify(filename_default))
             separator = "\n" + note_sep + "\n"
             out_text = separator.join(backup_data[0])
@@ -267,6 +281,7 @@ class BackupWorker(object):
                 f.write(out_text)
             return
 
+        # individual files for each note snippet
         for snippet, format_dict in zip(*backup_data):
             file_name = slugify(filename_formatstr.format(**format_dict))
             out_file = os.path.join(export_path, file_name)
@@ -278,6 +293,7 @@ class BackupWorker(object):
 
 
 def createCustomBackup():
+    """Glue function between Anki menu and BackupWorker"""
     worker = BackupWorker()
     worker.performBackup()
 
