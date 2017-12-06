@@ -34,11 +34,6 @@ from aqt.qt import *
 anki21 = anki_version.startswith("2.1.")
 sys_encoding = sys.getfilesystemencoding()
 
-if anki21:
-    # DEBUG: access debug console; TODO: remove
-    QShortcut(QKeySequence("Ctrl+Alt+Shift+D"), mw, activated=mw.onDebug)
-
-
 default_config = {
     "searchTerm": "",
     "noteTypeExceptions": {
