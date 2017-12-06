@@ -20,11 +20,12 @@ import sys
 import os
 import copy
 import io
+import time
 from datetime import datetime
 
 from aqt import mw
-from anki.utils import json
 
+from anki.utils import json
 from anki import version as anki_version
 
 from aqt.utils import tooltip
@@ -77,6 +78,25 @@ snippet_extensions_dict = {
     "noteTypeName": "notetype: {notetype}"
 }
 
+
+def unixToDate(timestamp, date_fmt):
+    return datetime.fromtimestamp(timestamp / 1000.0).strftime(date_fmt)
+
+def nextDue(c, date_fmt):
+    """Return next due date string
+    Adapted from aqt.browser
+    """
+    if c.odid:
+        return "(filtered)"
+    elif c.queue == 1:
+        date = c.due
+    elif c.queue == 0 or c.type == 0:
+        return "new"
+    elif c.queue in (2,3) or (c.type == 2 and c.queue < 0):
+        date = time.time() + ((c.due - mw.col.sched.today)*86400)
+    else:
+        return ""
+    return time.strftime(date_fmt, time.localtime(date))
 
 def slugify(value):
     """Return sanitized file name"""
@@ -176,29 +196,34 @@ class BackupWorker(object):
         date_fmt = self.config["dateFormat"]
 
         note = mw.col.getNote(nid)
-        first_card = note.cards()[0]
-        did = first_card.did
         model = note.model()
-        
         notetype = model["name"]
         fields = note.fields
-        fieldnames = mw.col.models.fieldNames(model)
+        fieldnames = mw.col.models.fieldNames(model)  
 
         if notetype in self.config["noteTypeExceptions"]:
             fieldnames = self.config["noteTypeExceptions"][notetype]
             fields = [note[i] for i in fieldnames if i in note]
-            
+        
+        # TODO? support for multi-card notes
+        first_card = note.cards()[0]
+        did = first_card.did
+        rev_dates = mw.col.db.list(
+            "select id from revlog where cid = ?", first_card.id)
+        history = [unixToDate(unix, date_fmt) for unix in rev_dates]
+        forecast = nextDue(first_card, date_fmt)
+
         note_data = {
             "nid": nid,
             "did": did,
             "deck": mw.col.decks.name(did),
-            "created": datetime.fromtimestamp(nid / 1000.0).strftime(date_fmt),
+            "created": unixToDate(nid, date_fmt),
             "fieldnames": fieldnames,
             "fields": fields,
             "notetype": model["name"],
             "tags": note.tags,
-            "history": [],
-            "forecast": ""
+            "history": history or ["new"],
+            "forecast": forecast or "new"
         }
 
         return note_data
