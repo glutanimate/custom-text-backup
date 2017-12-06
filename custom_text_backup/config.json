@@ -1,24 +1,39 @@
 {
     "searchTerm": "deck:current",
-    "noteTypeExceptions": {
-        "Basic": ["Back", "Front"],
-        "Cloze": ["Text"]
+    "optionalEntries": {
+        "scheduling": true,
+        "noteTypeName": true,
+        "fieldNames": true,
+        "deckName": true,
+        "tags": true
     },
-    "dateFormat": "%Y-%M-%D",
-    "exportFieldNames": false,
-    "exportScheduling": false,
-    "exportTags": false,
-    "exportDeckName": false,
-    "exportNotetypeName": false,
-    "fieldSeparator": "<--FLDSEP-->",
+    "optionalEntriesOrder": [
+        "noteTypeName",
+        "deckName",
+        "tags",
+        "scheduling",
+        "fieldNames"
+    ],
     "fieldStarter": "<--FLDSTART-->",
-    "fieldCloser": "<--FLDEND-->",
-    "singleLinePerField": false,
-    "singleLineFieldTitle": "<<<<field: {fieldname}>>>>",
-    "singleFilePerNote": false,
-    "singleFileNameFormat": "{nid}_{notetype}",
-    "noteSeparator": "=====",
+    "noteTypeExceptions": {
+        "Cloze": [
+            "Text"
+        ],
+        "Basic": [
+            "Back",
+            "Front"
+        ]
+    },
     "exportPath": "~/AnkiBackup",
+    "execAfterExport": "",
+    "dateFormat": "%Y-%M-%D",
+    "fieldCloser": "<--FLDEND-->",
+    "noteSeparator": "====================",
+    "fieldSeparator": "<--FLDSEP-->",
     "execBeforeExport": "",
-    "execAfterExport": ""
-} 
+    "individualFilePerNote": true,
+    "singleLinePerField": true,
+    "singleLineFieldTitle": "<<<<field: {fieldname}>>>>",
+    "individualFilePerNoteNameFormat": "{nid}_{notetype}.txt",
+    "exportFileName": "anki_custom_backup.txt"
+}
