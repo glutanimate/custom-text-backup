@@ -11,7 +11,6 @@ License: GNU AGPLv3 <https://www.gnu.org/licenses/agpl.html>
 
 # TODO: Features that need completion
 # - forecast, history
-# - note type exceptions
 # - date format
 # - run commands
 # - test on windows / anki2.1, etc.
@@ -40,7 +39,6 @@ default_config = {
         "Basic": ["Back", "Front"],
         "Cloze": ["Text"]
     },
-    "dateFormat": "%Y-%M-%D",
     "optionalEntries": {
         "noteTypeName": False,
         "deckName": False,
@@ -50,6 +48,7 @@ default_config = {
     },
     "optionalEntriesOrder": [
         "noteTypeName", "deckName", "tags", "scheduling", "fieldNames"],
+    "dateFormat": "%Y-%M-%D",
     "fieldSeparator": "<--FLDSEP-->",
     "fieldStarter": "<--FLDSTART-->",
     "fieldCloser": "<--FLDEND-->",
@@ -57,7 +56,7 @@ default_config = {
     "singleLineFieldTitle": "<<<<field: {fieldname}>>>>",
     "individualFilePerNote": False,
     "individualFilePerNoteNameFormat": "{nid}_{notetype}",
-    "noteSeparator": "=====",
+    "noteSeparator": "=================",
     "exportPath": "~/AnkiBackup",
     "exportFileName": "anki_custom_backup.txt",
     "execBeforeExport": "",
@@ -111,9 +110,7 @@ class BackupWorker(object):
             self.runCmd(pre_command)
 
         nids = self.findNids(self.config.get("searchTerm", ""))
-
         backup_data = self.getBackupData(nids)
-
         ret = self.writeBackup(backup_data)
 
         if ret is False:
@@ -180,14 +177,22 @@ class BackupWorker(object):
         first_card = note.cards()[0]
         did = first_card.did
         model = note.model()
+        
+        notetype = model["name"]
+        fields = note.fields
+        fieldnames = mw.col.models.fieldNames(model)
 
+        if notetype in self.config["noteTypeExceptions"]:
+            fieldnames = self.config["noteTypeExceptions"][notetype]
+            fields = [note[i] for i in fieldnames if i in note]
+            
         note_data = {
             "nid": note.id,
             "did": did,
             "deck": mw.col.decks.name(did),
             "created": note.id,
-            "fieldnames": mw.col.models.fieldNames(model),
-            "fields": note.fields,
+            "fieldnames": fieldnames,
+            "fields": fields,
             "notetype": model["name"],
             "tags": note.tags,
             "history": [],

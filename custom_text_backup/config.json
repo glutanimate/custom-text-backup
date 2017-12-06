@@ -17,7 +17,8 @@
     "fieldStarter": "<--FLDSTART-->",
     "noteTypeExceptions": {
         "Cloze": [
-            "Text"
+            "Text",
+            "Extra"
         ],
         "Basic": [
             "Back",
