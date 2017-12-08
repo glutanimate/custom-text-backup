@@ -181,15 +181,17 @@ class BackupWorker(object):
         snippet_extensions_list = [""]
         entries_status = self.config.get("optionalEntries", None)
         entries_order = self.config.get("optionalEntriesOrder", None)
-        
+
         if entries_status:
             if entries_order:
                 for key in entries_order:
                     if not entries_status.get(key, False):
                         continue
-                    snippet_extensions_list.append(snippet_extensions_dict[key])
+                    snippet_extensions_list.append(
+                        snippet_extensions_dict[key])
             else:
-                snippet_extensions_list += list(snippet_extensions_dict.values())
+                snippet_extensions_list += list(
+                    snippet_extensions_dict.values())
 
         self.snippet_formatstr = snippet_body.format(
             snippet_extensions="\n".join(snippet_extensions_list))
@@ -206,7 +208,8 @@ class BackupWorker(object):
         if not anki21:
             # python2 requires some extra attention when handling paths
             enc_conf_path = self.config["exportPath"].encode("utf-8")
-            export_path = os.path.expanduser(enc_conf_path).decode(sys_encoding)
+            export_path = os.path.expanduser(
+                enc_conf_path).decode(sys_encoding)
         else:
             export_path = os.path.expanduser(self.config["exportPath"])
         try:
@@ -326,7 +329,8 @@ class BackupWorker(object):
 
         if not individual_files:
             # pack note snippets into a single file
-            out_file = os.path.join(self.export_path, slugify(filename_default))
+            out_file = os.path.join(
+                self.export_path, slugify(filename_default))
             separator = "\n" + note_sep + "\n"
             out_text = separator.join(backup_data[0])
             with io.open(out_file, "w+", encoding="utf-8") as f:
@@ -342,7 +346,7 @@ class BackupWorker(object):
     def runCmd(self, command_array):
         run_args = self.run_args
         if not anki21:
-            args = [i.format(**run_args).encode(sys_encoding) 
+            args = [i.format(**run_args).encode(sys_encoding)
                     for i in command_array]
         else:
             args = [i.format(**run_args) for i in command_array]
