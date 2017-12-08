@@ -9,9 +9,6 @@ Copyright: (c) 2017 Glutanimate <https://glutanimate.com/>
 License: GNU AGPLv3 <https://www.gnu.org/licenses/agpl.html>
 """
 
-# TODO: Features that need completion
-# - test on windows / anki2.1, etc.
-
 from __future__ import unicode_literals
 
 import sys
@@ -206,7 +203,12 @@ class BackupWorker(object):
 
     def getBackupDirectory(self):
         """Check if backup folder exists. Create it if necessary"""
-        export_path = os.path.expanduser(self.config["exportPath"])
+        if not anki21:
+            # python2 requires some extra attention when handling paths
+            enc_conf_path = self.config["exportPath"].encode("utf-8")
+            export_path = os.path.expanduser(enc_conf_path).decode(sys_encoding)
+        else:
+            export_path = os.path.expanduser(self.config["exportPath"])
         try:
             if not os.path.isdir(export_path):
                 os.makedirs(export_path)
@@ -339,7 +341,11 @@ class BackupWorker(object):
 
     def runCmd(self, command_array):
         run_args = self.run_args
-        args = [i.format(**run_args) for i in command_array]
+        if not anki21:
+            args = [i.format(**run_args).encode(sys_encoding) 
+                    for i in command_array]
+        else:
+            args = [i.format(**run_args) for i in command_array]
         try:
             subprocess.Popen(args)
         except OSError:
