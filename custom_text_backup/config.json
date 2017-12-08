@@ -35,6 +35,6 @@
     "individualFilePerNoteNameFormat": "{nid}_{notetype}.txt",
     "exportPath": "~/AnkiBackup",
     "exportFileName": "anki_custom_backup.txt",
-    "execBeforeExport": ["notify-send", "1: {export_path}"],
-    "execAfterExport": ["notify-send", "2: {export_path}"]
+    "execBeforeExport": ["notify-send", "execBeforeExport {export_path}"],
+    "execAfterExport": ["notify-send", "execAfterExport {export_path}"]
 }

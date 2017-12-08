@@ -131,8 +131,8 @@ class BackupWorker(object):
                     "Please check the config file and try again.")
             return False
 
-        pre_command = self.config["execBeforeExport"]
-        post_command = self.config["execAfterExport"]
+        pre_command = self.config.get("execBeforeExport", None)
+        post_command = self.config.get("execAfterExport", None)
 
         if pre_command:
             self.runCmd(pre_command)
@@ -182,10 +182,18 @@ class BackupWorker(object):
     def constructSnippetFormatStr(self):
         """Assemble format string for note backup snippets"""
         snippet_extensions_list = [""]
-        for key in self.config["optionalEntriesOrder"]:
-            if not self.config["optionalEntries"][key]:
-                continue
-            snippet_extensions_list.append(snippet_extensions_dict[key])
+        entries_status = self.config.get("optionalEntries", None)
+        entries_order = self.config.get("optionalEntriesOrder", None)
+        
+        if entries_status:
+            if entries_order:
+                for key in entries_order:
+                    if not entries_status.get(key, False):
+                        continue
+                    snippet_extensions_list.append(snippet_extensions_dict[key])
+            else:
+                snippet_extensions_list += list(snippet_extensions_dict.values())
+
         self.snippet_formatstr = snippet_body.format(
             snippet_extensions="\n".join(snippet_extensions_list))
 
@@ -208,7 +216,7 @@ class BackupWorker(object):
 
     def getNoteData(self, nid):
         """Get data dictionary for note id"""
-        date_fmt = self.config["dateFormat"]
+        date_fmt = self.config.get("dateFormat", "%Y-%M-%d")
 
         note = mw.col.getNote(nid)
         model = note.model()
@@ -216,7 +224,7 @@ class BackupWorker(object):
         fields = note.fields
         fieldnames = mw.col.models.fieldNames(model)
 
-        if notetype in self.config["noteTypeExceptions"]:
+        if notetype in self.config.get("noteTypeExceptions", {}):
             fieldnames = self.config["noteTypeExceptions"][notetype]
             fields = [note[i] for i in fieldnames if i in note]
 
