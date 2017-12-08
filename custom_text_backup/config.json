@@ -14,7 +14,6 @@
         "scheduling",
         "fieldNames"
     ],
-    "fieldStarter": "<--FLDSTART-->",
     "noteTypeExceptions": {
         "Cloze": [
             "Text",
@@ -25,16 +24,17 @@
             "Front"
         ]
     },
-    "exportPath": "~/AnkiBackup",
-    "execAfterExport": "",
     "dateFormat": "%Y-%m-%d",
+    "fieldStarter": "<--FLDSTART-->",
     "fieldCloser": "<--FLDEND-->",
-    "noteSeparator": "====================",
     "fieldSeparator": "<--FLDSEP-->",
-    "execBeforeExport": "",
-    "individualFilePerNote": true,
-    "singleLinePerField": true,
+    "noteSeparator": "====================",
+    "singleLinePerField": false,
     "singleLineFieldTitle": "<<<<field: {fieldname}>>>>",
+    "individualFilePerNote": false,
     "individualFilePerNoteNameFormat": "{nid}_{notetype}.txt",
-    "exportFileName": "anki_custom_backup.txt"
+    "exportPath": "~/AnkiBackup",
+    "exportFileName": "anki_custom_backup.txt",
+    "execBeforeExport": ["notify-send", "1: {export_path}"],
+    "execAfterExport": ["notify-send", "2: {export_path}"]
 }

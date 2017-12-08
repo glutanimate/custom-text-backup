@@ -10,8 +10,6 @@ License: GNU AGPLv3 <https://www.gnu.org/licenses/agpl.html>
 """
 
 # TODO: Features that need completion
-# - forecast, history
-# - run commands
 # - test on windows / anki2.1, etc.
 
 from __future__ import unicode_literals
@@ -20,6 +18,7 @@ import sys
 import os
 import copy
 import io
+import subprocess
 import time
 from datetime import datetime
 
@@ -50,9 +49,9 @@ default_config = {
     "optionalEntriesOrder": [
         "noteTypeName", "deckName", "tags", "scheduling", "fieldNames"],
     "dateFormat": "%Y-%M-%d",
-    "fieldSeparator": "<--FLDSEP-->",
     "fieldStarter": "<--FLDSTART-->",
     "fieldCloser": "<--FLDEND-->",
+    "fieldSeparator": "<--FLDSEP-->",
     "singleLinePerField": False,
     "singleLineFieldTitle": "<<<<field: {fieldname}>>>>",
     "individualFilePerNote": False,
@@ -60,8 +59,8 @@ default_config = {
     "noteSeparator": "=================",
     "exportPath": "~/AnkiBackup",
     "exportFileName": "anki_custom_backup.txt",
-    "execBeforeExport": "",
-    "execAfterExport": ""
+    "execBeforeExport": [],
+    "execAfterExport": []
 }
 
 snippet_body = """\
@@ -82,6 +81,7 @@ snippet_extensions_dict = {
 def unixToDate(timestamp, date_fmt):
     return datetime.fromtimestamp(timestamp / 1000.0).strftime(date_fmt)
 
+
 def nextDue(c, date_fmt):
     """Return next due date string
     Adapted from aqt.browser
@@ -92,11 +92,12 @@ def nextDue(c, date_fmt):
         date = c.due
     elif c.queue == 0 or c.type == 0:
         return "new"
-    elif c.queue in (2,3) or (c.type == 2 and c.queue < 0):
-        date = time.time() + ((c.due - mw.col.sched.today)*86400)
+    elif c.queue in (2, 3) or (c.type == 2 and c.queue < 0):
+        date = time.time() + ((c.due - mw.col.sched.today) * 86400)
     else:
         return ""
     return time.strftime(date_fmt, time.localtime(date))
+
 
 def slugify(value):
     """Return sanitized file name"""
@@ -106,7 +107,7 @@ def slugify(value):
 
 class BackupWorker(object):
     """Exports Anki notes to custom-formatted text files
-    
+
     Initiliaze and call with:
     ```python
     worker = BackupWorker()
@@ -120,11 +121,18 @@ class BackupWorker(object):
     def __init__(self):
         self.readConfig()
         self.constructSnippetFormatStr()
+        self.setExportVariables()
 
     def performBackup(self):
         """Main backup method"""
+
+        if not self.export_path:
+            tooltip("Export directory could not be found/created.<br>"
+                    "Please check the config file and try again.")
+            return False
+
         pre_command = self.config["execBeforeExport"]
-        post_command = self.config["execBeforeExport"]
+        post_command = self.config["execAfterExport"]
 
         if pre_command:
             self.runCmd(pre_command)
@@ -137,7 +145,7 @@ class BackupWorker(object):
             return False
 
         if post_command:
-            self.runCmd(pre_command)
+            self.runCmd(post_command)
 
         tooltip("Backup performed succesfully")
 
@@ -181,6 +189,13 @@ class BackupWorker(object):
         self.snippet_formatstr = snippet_body.format(
             snippet_extensions="\n".join(snippet_extensions_list))
 
+    def setExportVariables(self):
+        self.export_path = self.getBackupDirectory()
+        self.run_args = {
+            "export_path": self.export_path,
+            "export_file": self.config["exportFileName"]
+        }
+
     def getBackupDirectory(self):
         """Check if backup folder exists. Create it if necessary"""
         export_path = os.path.expanduser(self.config["exportPath"])
@@ -199,12 +214,12 @@ class BackupWorker(object):
         model = note.model()
         notetype = model["name"]
         fields = note.fields
-        fieldnames = mw.col.models.fieldNames(model)  
+        fieldnames = mw.col.models.fieldNames(model)
 
         if notetype in self.config["noteTypeExceptions"]:
             fieldnames = self.config["noteTypeExceptions"][notetype]
             fields = [note[i] for i in fieldnames if i in note]
-        
+
         # TODO? support for multi-card notes
         first_card = note.cards()[0]
         did = first_card.did
@@ -235,8 +250,8 @@ class BackupWorker(object):
             nids {list} -- list of note IDs to back up
 
         Returns:
-          backup_data {tuple} -- tuple of snippets list and
-                                 format_dicts dictionary list
+            backup_data {tuple} -- tuple of snippets list and
+                                   format_dicts dictionary list
         """
 
         flds_sep = self.config["fieldSeparator"]
@@ -293,35 +308,35 @@ class BackupWorker(object):
 
     def writeBackup(self, backup_data):
         """Write backup to disk"""
-        export_path = self.getBackupDirectory()
-
-        if not export_path:
-            tooltip("Export directory could not be found/created.<br>"
-                    "Please check the config file and try again.")
-            return False
 
         individual_files = self.config["individualFilePerNote"]
         note_sep = self.config["noteSeparator"]
         filename_formatstr = self.config["individualFilePerNoteNameFormat"]
         filename_default = self.config["exportFileName"]
 
-        if not individual_files:  # pack note snippets into a single file
-            out_file = os.path.join(export_path, slugify(filename_default))
+        if not individual_files:
+            # pack note snippets into a single file
+            out_file = os.path.join(self.export_path, slugify(filename_default))
             separator = "\n" + note_sep + "\n"
             out_text = separator.join(backup_data[0])
             with io.open(out_file, "w+", encoding="utf-8") as f:
                 f.write(out_text)
-            return
+        else:
+            # individual files for each note snippet
+            for snippet, format_dict in zip(*backup_data):
+                file_name = slugify(filename_formatstr.format(**format_dict))
+                out_file = os.path.join(self.export_path, file_name)
+                with io.open(out_file, "w+", encoding="utf-8") as f:
+                    f.write(snippet)
 
-        # individual files for each note snippet
-        for snippet, format_dict in zip(*backup_data):
-            file_name = slugify(filename_formatstr.format(**format_dict))
-            out_file = os.path.join(export_path, file_name)
-            with io.open(out_file, "w+", encoding="utf-8") as f:
-                f.write(snippet)
-
-    def runCmd(command):
-        pass
+    def runCmd(self, command_array):
+        run_args = self.run_args
+        args = [i.format(**run_args) for i in command_array]
+        try:
+            subprocess.Popen(args)
+        except OSError:
+            tooltip("External command produced an error.<br>"
+                    "Please confirm that it is assigned correctly.")
 
 
 def createCustomBackup():
