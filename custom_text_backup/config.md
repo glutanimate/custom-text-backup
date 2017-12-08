@@ -1,8 +1,8 @@
 ## Configuring 'Custom Text Backup'
 
-**Available Options**
+#### Available Options
 
-*searchTerm*
+**searchTerm**
 
 String defining search term:
 
@@ -10,7 +10,7 @@ String defining search term:
 "searchTerm": "deck:current
 ```
 
-*optionalEntries*
+**optionalEntries**
 
 Dictionary of Boolean values.
 
@@ -28,7 +28,7 @@ Optional note data to include in backup:
 }
 ```
 
-*optionalEntriesOrder*
+**optionalEntriesOrder**
 
 List of `optionalEntries` keys (strings).
 
@@ -45,7 +45,7 @@ Allows defining a custom order for `optionalEntries`:
 ```
 
 
-*noteTypeExceptions*
+**noteTypeExceptions**
 
 Dictionary of Lists. Each key should correspond to a note type you want to customize.
 
@@ -64,7 +64,7 @@ Lists govern which fields to include in each case:
 },
 ```
 
-*dateFormat*
+**dateFormat**
 
 String that defines the strftime format used by all date specifications in the backup:
 
@@ -74,7 +74,7 @@ String that defines the strftime format used by all date specifications in the b
 
 This controls the date format of the `history` data, `forecast` data, and `created` date.
 
-*fieldStart, fieldClose, fieldSeparator*
+**fieldStart, fieldClose, fieldSeparator**
 
 Strings that control the starting tag, ending tag, and separator between fields:
 
@@ -84,7 +84,7 @@ Strings that control the starting tag, ending tag, and separator between fields:
 "fieldSeparator": "<--FLDSEP-->",
 ```
 
-*noteSeparator*
+**noteSeparator**
 
 String that separates each note when exporting multiple notes to a single backup file:
 
@@ -92,7 +92,7 @@ String that separates each note when exporting multiple notes to a single backup
 "noteSeparator": "===================="
 ```
 
-*singleLinePerField*
+**singleLinePerField**
 
 Boolean that controls whether or not to put each field on a separate line:
 
@@ -100,7 +100,7 @@ Boolean that controls whether or not to put each field on a separate line:
 "singleLinePerField": false
 ```
 
-*singleLineFieldTitle*
+**singleLineFieldTitle**
 
 String that separates each field when `singleLinePerField` is `true`. Note that the supplied String will always be surrounded by linebreaks before and after.
 
@@ -108,7 +108,7 @@ String that separates each field when `singleLinePerField` is `true`. Note that 
 "singleLineFieldTitle": "<<<<field: {fieldname}>>>>"
 ```
 
-*individualFilePerNote*
+**individualFilePerNote**
 
 Boolean that controls whether to export each respective note to a separate text file:
 
@@ -116,7 +116,7 @@ Boolean that controls whether to export each respective note to a separate text 
 "individualFilePerNote": false
 ```
 
-*individualFilePerNoteNameFormat*
+**individualFilePerNoteNameFormat**
 
 Format String that controls file names of individual files when `individualFilePerNote` is active:
 
@@ -126,7 +126,7 @@ Format String that controls file names of individual files when `individualFileP
 
 Available format variables include: `{nid}`, `{notetype}`, `{deck}`, `{created}`.
 
-*exportPath*
+**exportPath**
 
 String pointing to the directory the backup files should be saved at. If the path does not exist, the add-on wil create it automatically.
 
@@ -134,7 +134,7 @@ String pointing to the directory the backup files should be saved at. If the pat
 "exportPath": "~/AnkiBackup"
 ```
 
-*exportFileName*
+**exportFileName**
 
 String describing the filename to use when exporting to a single file
 
@@ -145,7 +145,7 @@ String describing the filename to use when exporting to a single file
 This string setting does not support specifying any format variables.
 
 
-*execBeforeExport*
+**execBeforeExport**
 
 List describing a command and its arguments that is to be run before performing a backup. This is empty by default, but an example could look as follows:
 
@@ -153,12 +153,12 @@ List describing a command and its arguments that is to be run before performing 
 "execBeforeExport": ["notify-send", "execBeforeExport {export_path}"]
 ```
 
-The following format variables are supported:"
+The following format variables are supported:
 
 - `{export_path}`: backup directory
 - `{export_file}`: backup file name when exporting to a single file 
 
-*execAfterExport*
+**execAfterExport**
 
 Just like `execBeforeExport`, but executed after exporting.
 
